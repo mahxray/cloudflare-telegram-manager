@@ -13,7 +13,7 @@ from cryptography.fernet import Fernet
 
 source = Path(__file__).with_name('bot.py').read_text()
 module = ast.parse(source)
-names = {'normalize_cf_token', 'format_cf_errors', 'cf_request', 'verify_token_for_account', 'decrypt_token'}
+names = {'normalize_cf_token', 'format_cf_errors', 'cf_request', 'list_zones_with_token', 'verify_token_for_account', 'decrypt_token'}
 selected = [n for n in module.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name in names]
 code = compile(ast.Module(body=selected, type_ignores=[]), 'bot_extract.py', 'exec')
 

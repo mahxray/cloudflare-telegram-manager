@@ -1034,5 +1034,25 @@
   "✅ زبان ربات با موفقیت تغییر کرد.\n\n": {
     "en": "✅ Bot language updated successfully.\n\n",
     "ru": "✅ Язык бота успешно изменён.\n\n"
+  },
+  "⚡ اتصال سریع Cloudflare": {
+    "en": "⚡ Quick Cloudflare setup",
+    "ru": "⚡ Быстрое подключение Cloudflare"
+  },
+  "🔑 باز کردن فرم ساخت توکن": {
+    "en": "🔑 Open token creation form",
+    "ru": "🔑 Открыть форму создания токена"
+  },
+  "🔗 اتصال دستی": {
+    "en": "🔗 Manual setup",
+    "ru": "🔗 Подключить вручную"
+  },
+  "⚡ <b>اتصال سریع Cloudflare</b>\n\nفرم ساخت توکن را باز کنید، حساب و دامنه‌های موردنیاز را انتخاب کنید و ساخت توکن را تأیید کنید.\nتوکن را در همین گفت‌وگوی خصوصی بفرستید تا ربات حساب را پیدا کند.": {
+    "en": "⚡ <b>Quick Cloudflare setup</b>\n\nOpen the token form, select your account and domains, then confirm token creation.\nSend the token in this private chat so the bot can find your account.",
+    "ru": "⚡ <b>Быстрое подключение Cloudflare</b>\n\nОткройте форму, выберите аккаунт и домены и подтвердите создание токена.\nОтправьте токен в этот личный чат, чтобы бот нашёл аккаунт."
+  },
+  "شناسه حساب یکتا پیدا نشد. توکن را به دامنه‌های یک حساب محدود کنید یا از اتصال دستی استفاده کنید.": {
+    "en": "No single account was found. Limit the token to domains in one account or use manual setup.",
+    "ru": "Не удалось определить один аккаунт. Ограничьте токен доменами одного аккаунта или подключитесь вручную."
   }
 }

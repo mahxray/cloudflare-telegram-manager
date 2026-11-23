@@ -13,6 +13,7 @@ from functools import wraps
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 import httpx
 from cryptography.fernet import Fernet, InvalidToken
@@ -305,13 +306,12 @@ def format_cf_errors(data: dict, status: int) -> str:
     return "; ".join(parts[:6]) or f"HTTP {status}"
 
 
-async def verify_token_for_account(token: str, account_id: str) -> int:
-    """Test the exact account-scoped API call that the bot uses."""
-    token = normalize_cf_token(token)
-    async with httpx.AsyncClient(timeout=25) as client:
-        r = await client.get(CF_API + "/zones",
-                             headers={"Authorization": f"Bearer {token}"},
-                             params={"account.id": account_id, "per_page": 1})
+async def list_zones_with_token(client, token, params):
+    r = await client.get(
+        CF_API + "/zones",
+        headers={"Authorization": f"Bearer {token}"},
+        params=params,
+    )
     try:
         data = r.json()
     except ValueError:
@@ -321,7 +321,52 @@ async def verify_token_for_account(token: str, account_id: str) -> int:
         if r.status_code == 400 and any(e.get("code") == 6003 for e in data.get("errors",[]) if isinstance(e,dict)):
             msg += ". API Token یا قالب هدر Authorization معتبر نیست؛ فقط متن خام توکن را وارد کن."
         raise RuntimeError(msg)
+    return data
+
+
+async def verify_token_for_account(token: str, account_id: str) -> int:
+    """Test the exact account-scoped API call that the bot uses."""
+    async with httpx.AsyncClient(timeout=25) as client:
+        data = await list_zones_with_token(
+            client, normalize_cf_token(token), {"account.id": account_id, "per_page": 1}
+        )
     return (data.get("result_info") or {}).get("total_count", len(data.get("result") or []))
+
+
+async def discover_token_account(token):
+    accounts = {}
+    page = 1
+    async with httpx.AsyncClient(timeout=25) as client:
+        while True:
+            data = await list_zones_with_token(client, token, {"per_page": 50, "page": page})
+            for zone in data.get("result") or []:
+                account = zone.get("account") or {}
+                account_id = account.get("id") or ""
+                if re.fullmatch(r"[0-9a-fA-F]{32}", account_id):
+                    accounts[account_id] = (account.get("name") or account_id)[:60]
+                if len(accounts) > 1:
+                    return None
+            if page >= (data.get("result_info") or {}).get("total_pages", 1):
+                break
+            page += 1
+    return next(iter(accounts.items()), None)
+
+
+def cloudflare_token_template():
+    permissions = [
+        {"key": "zone", "type": "read"},
+        {"key": "dns", "type": "edit"},
+        {"key": "zone_settings", "type": "edit"},
+        {"key": "cache", "type": "purge"},
+    ]
+    query = urlencode({
+        "permissionGroupKeys": json.dumps(permissions, separators=(",", ":")),
+        "accountId": "*",
+        "zoneId": "all",
+        "name": "Cloudflare Telegram Manager",
+    })
+    return "https://dash.cloudflare.com/profile/api-tokens?" + query
+
 
 
 def encrypt_token(token: str) -> bytes:
@@ -636,6 +681,7 @@ def main_kb(connected=True):
     """Task-oriented two-column home screen with a clear onboarding path."""
     if not connected:
         return InlineKeyboardMarkup([
+            [InlineKeyboardButton("⚡ اتصال سریع Cloudflare", callback_data="acc:quick")],
             [InlineKeyboardButton("🔗 اتصال اولین حساب", callback_data="acc:add")],
             [InlineKeyboardButton("📖 راهنمای گام‌به‌گام", callback_data="guide")],
             [InlineKeyboardButton("ℹ️ درباره ربات", callback_data="about")],
@@ -671,7 +717,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update): return await deny(update)
     q = update.callback_query
     d = decode_callback_data(q.data or "")
-    if (d == "acc:add" or d.startswith("acc:token:")) and not is_private_chat(update):
+    if (d in {"acc:add", "acc:quick"} or d.startswith("acc:token:")) and not is_private_chat(update):
         return await localized_answer(q, "🔒 اتصال حساب و ورود توکن فقط در گفت‌وگوی خصوصی مجاز است.",show_alert=True)
     if not d.startswith("lang:"):
         await localized_answer(q)
@@ -699,6 +745,20 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if d.startswith("acc:view:"):
             return await account_detail_menu(q,int(d.rsplit(":",1)[1]))
         if d == "accounts": return await accounts_menu(q)
+        if d == "acc:quick":
+            context.user_data["state"] = "acc_quick_token"
+            return await safe_edit(
+                q,
+                "⚡ <b>اتصال سریع Cloudflare</b>\n\n"
+                "فرم ساخت توکن را باز کنید، حساب و دامنه‌های موردنیاز را انتخاب کنید و ساخت توکن را تأیید کنید.\n"
+                "توکن را در همین گفت‌وگوی خصوصی بفرستید تا ربات حساب را پیدا کند.",
+                parse_mode=ParseMode.HTML,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔑 باز کردن فرم ساخت توکن", url=cloudflare_token_template())],
+                    [InlineKeyboardButton("🔗 اتصال دستی", callback_data="acc:add")],
+                    [InlineKeyboardButton("❌ لغو", callback_data="main")],
+                ]),
+            )
         if d == "acc:add":
             if not is_private_chat(update):
                 return await localized_answer(q, "اتصال حساب فقط در گفت‌وگوی خصوصی مجاز است.",show_alert=True)
@@ -892,6 +952,7 @@ def accounts_view(note=""):
     rows = list_accounts()
     kb = [[InlineKeyboardButton(("✅ " if a["active"] else "☁️ ") + short(a["label"], 29),
                                 callback_data=f"acc:view:{a['id']}")] for a in rows]
+    kb.append([InlineKeyboardButton("⚡ اتصال سریع Cloudflare", callback_data="acc:quick")])
     kb.append([InlineKeyboardButton("➕ افزودن حساب جدید", callback_data="acc:add")])
     kb.append([InlineKeyboardButton("📖 راهنمای اتصال حساب", callback_data="guide")])
     kb.append([InlineKeyboardButton("🏠 منوی اصلی", callback_data="main")])
@@ -1193,7 +1254,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not state: return
     msg=update.effective_message; text=(msg.text or "").strip()
     try:
-        if state in {"acc_label","acc_id","acc_token","acc_replace_token"} and not is_private_chat(update):
+        if state in {"acc_label","acc_id","acc_token","acc_replace_token","acc_quick_token"} and not is_private_chat(update):
             context.user_data.clear()
             try: await msg.delete()
             except Exception: pass
@@ -1218,7 +1279,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "توکن باید به دامنه‌های این حساب و دست‌کم مجوز مشاهده Zone دسترسی داشته باشد.\n\n"
                 "🔒 بعد از دریافت، پیام حاوی توکن را حذف می‌کنم و اتصال را می‌آزمایم.",
                 parse_mode=ParseMode.HTML,reply_markup=cancel_kb("accounts"))
-        if state in ("acc_token", "acc_replace_token"):
+        if state in ("acc_token", "acc_replace_token", "acc_quick_token"):
             # Private-chat messages can be deleted by bots; failures are nonfatal.
             try: await msg.delete()
             except Exception: pass
@@ -1237,8 +1298,21 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode=ParseMode.HTML,reply_markup=InlineKeyboardMarkup([
                       [InlineKeyboardButton("👤 مشاهده حساب",callback_data=f"acc:view:{aid}")],
                       [InlineKeyboardButton("🏠 منوی اصلی",callback_data="main")]]))
-            label=context.user_data["label"]
-            accid=context.user_data["account_id"]
+            if state == "acc_quick_token":
+                discovered = await discover_token_account(token)
+                if discovered is None:
+                    return await localized_send(
+                        update.effective_chat,
+                        "شناسه حساب یکتا پیدا نشد. توکن را به دامنه‌های یک حساب محدود کنید یا از اتصال دستی استفاده کنید.",
+                        reply_markup=InlineKeyboardMarkup([
+                            [InlineKeyboardButton("🔗 اتصال دستی", callback_data="acc:add")],
+                            [InlineKeyboardButton("❌ لغو", callback_data="main")],
+                        ]),
+                    )
+                accid, label = discovered
+            else:
+                label = context.user_data["label"]
+                accid = context.user_data["account_id"]
             await verify_token_for_account(token, accid)
             enc=encrypt_token(token)
             with closing(db_connect()) as con:

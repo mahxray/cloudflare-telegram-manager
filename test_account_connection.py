@@ -3,12 +3,13 @@ import ast
 import asyncio
 import base64
 import json
+import re
 from pathlib import Path
 from cryptography.fernet import Fernet
 
 source = Path(__file__).with_name('bot.py').read_text()
 tree = ast.parse(source)
-fnames = {'normalize_cf_token', 'format_cf_errors', 'cf_request', 'verify_token_for_account', 'safe_edit', 'decrypt_token'}
+fnames = {'normalize_cf_token', 'format_cf_errors', 'cf_request', 'list_zones_with_token', 'discover_token_account', 'verify_token_for_account', 'safe_edit', 'decrypt_token'}
 functions = [x for x in tree.body if isinstance(x, (ast.FunctionDef, ast.AsyncFunctionDef)) and x.name in fnames]
 assert len(functions) == len(fnames)
 
@@ -49,7 +50,7 @@ class Query:
 
 cipher=Fernet(Fernet.generate_key())
 namespace={'tr':lambda x:x,'BadRequest':BadRequest,'httpx':Httpx,'FERNET':cipher,'InvalidToken':Exception,
-           'CF_API':'https://api.cloudflare.com/client/v4'}
+           'CF_API':'https://api.cloudflare.com/client/v4', 're': re}
 exec(compile(ast.Module(body=functions,type_ignores=[]),'bot-extracted','exec'),namespace)
 normalize=namespace['normalize_cf_token']
 for value in ('goodtoken','Bearer goodtoken','Bearer "goodtoken"','Authorization: Bearer goodtoken'):
@@ -68,6 +69,29 @@ async def main():
     assert result['success']
     assert await namespace['verify_token_for_account']('Bearer goodtoken','accountid')==1
     assert len(Client.reqs)==2
+
+    account = {"id": "a" * 32, "name": "Primary account"}
+    other = {"id": "b" * 32, "name": "Other account"}
+
+    async def discover(pages):
+        requested = []
+
+        async def list_zones(client, token, params):
+            assert token == "goodtoken"
+            requested.append(params["page"])
+            return {
+                "result": [{"account": item} for item in pages[params["page"] - 1]],
+                "result_info": {"total_pages": len(pages)},
+            }
+
+        namespace["list_zones_with_token"] = list_zones
+        result = await namespace["discover_token_account"]("goodtoken")
+        assert requested == list(range(1, len(pages) + 1))
+        return result
+
+    assert await discover([[account], [account]]) == (account["id"], account["name"])
+    assert await discover([[account], [other]]) is None
+    assert await discover([[]]) is None
 
 asyncio.run(main())
 assert namespace['format_cf_errors']({'errors':[{'code':6003,'message':'Invalid request headers','error_chain':[{'code':6111,'message':'Invalid format for Authorization header'}]}]},400) == 'Invalid request headers (6003); Invalid format for Authorization header (6111)'
