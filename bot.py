@@ -487,13 +487,37 @@ def is_private_chat(update):
     return getattr(update.effective_chat,"type",None)=="private"
 
 
-async def account_detail_menu(q, aid, note=""):
+async def account_detail_menu(q, aid, note="", page=0):
     a=get_account(aid)
     if a is None:
         return await accounts_menu(q,"حساب موردنظر پیدا نشد.")
-    state="🟢 فعال" if a['active'] else "⚪ غیرفعال"
-    kb=[
-        [InlineKeyboardButton("✅ انتخاب به‌عنوان حساب فعال",callback_data=f"acc:select:{aid}")],
+    try:
+        data = await cf_request(
+            a, "GET", "/zones",
+            params={"account.id": a["account_id"], "per_page": 10, "page": page + 1},
+        )
+        zones = data.get("result") or []
+        info = data.get("result_info") or {}
+        count = info.get("total_count", len(zones))
+        status = "🟢 اتصال برقرار است"
+        domain_text = f"🌐 دامنه‌های قابل‌مشاهده: <b>{count}</b>"
+        if zones:
+            domain_text += "\n" + "\n".join(
+                f"• <code>{esc(zone['name'])}</code> · {esc(zone.get('status', '—'))}"
+                for zone in zones
+            )
+        pagination = page_navigation(page, max(0, info.get("total_pages", 1) - 1), f"acc:view:{aid}")
+    except (httpx.HTTPError, RuntimeError, ValueError):
+        status = "⚠️ دریافت وضعیت اتصال ناموفق بود"
+        domain_text = "برای بررسی خطا، تست اتصال را اجرا کنید."
+        pagination = []
+
+    kb = [pagination] if len(pagination) > 1 else []
+    if a["active"]:
+        kb.append([InlineKeyboardButton("🌐 مدیریت دامنه‌ها", callback_data="zones:0")])
+    else:
+        kb.append([InlineKeyboardButton("✅ انتخاب حساب برای مدیریت", callback_data=f"acc:select:{aid}")])
+    kb += [
         [InlineKeyboardButton("🧪 تست اتصال",callback_data=f"acc:test:{aid}"),
          InlineKeyboardButton("🔑 تعویض API Token",callback_data=f"acc:token:{aid}")],
         [InlineKeyboardButton("🗑 قطع اتصال و حذف",callback_data=f"acc:deleteask:{aid}")],
@@ -503,10 +527,10 @@ async def account_detail_menu(q, aid, note=""):
     txt=((f"✅ {esc(note)}\n\n") if note else "")+(
         "👤 <b>جزئیات حساب Cloudflare</b>\n\n"
         f"🏷 نام: <b>{esc(a['label'])}</b>\n"
-        f"📡 وضعیت: {state}\n"
+        f"📡 وضعیت: {status}\n"
         f"🆔 Account ID: <code>{esc(a['account_id'])}</code>\n"
         "🔐 API Token: <b>ذخیره‌شده و رمزنگاری‌شده</b>\n\n"
-        "برای اطمینان از مجوز و اعتبار توکن، تست اتصال را اجرا کنید.")
+        f"{domain_text}")
     await safe_edit(q,txt,parse_mode=ParseMode.HTML,reply_markup=InlineKeyboardMarkup(kb))
 
 
@@ -743,7 +767,10 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if d == "guide": return await guide_menu(q)
         if d.startswith("guide:"): return await guide_menu(q,d.split(":",1)[1])
         if d.startswith("acc:view:"):
-            return await account_detail_menu(q,int(d.rsplit(":",1)[1]))
+            parts = d.split(":")
+            aid = int(parts[2])
+            page = int(parts[3]) if len(parts) == 4 else 0
+            return await account_detail_menu(q, aid, page=page)
         if d == "accounts": return await accounts_menu(q)
         if d == "acc:quick":
             context.user_data["state"] = "acc_quick_token"
@@ -779,7 +806,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return await account_detail_menu(q,aid,"این حساب از قبل فعال است.")
             with closing(db_connect()) as con:
                 con.execute("UPDATE cf_accounts SET active=CASE WHEN id=? THEN 1 ELSE 0 END", (aid,)); con.commit()
-            return await account_detail_menu(q,aid,"حساب فعال تغییر کرد.")
+            return await account_detail_menu(q,aid,"حساب انتخاب‌شده برای مدیریت تغییر کرد.")
         if d.startswith("acc:test:"):
             aid=int(d.rsplit(":",1)[1]); a=get_account(aid)
             if a is None: raise ValueError("اکانت پیدا نشد")
@@ -950,7 +977,7 @@ def cancel_kb(target="main"):
 def accounts_view(note=""):
     """Build a single account screen shared by /accounts and inline buttons."""
     rows = list_accounts()
-    kb = [[InlineKeyboardButton(("✅ " if a["active"] else "☁️ ") + short(a["label"], 29),
+    kb = [[InlineKeyboardButton("☁️ " + short(a["label"], 29),
                                 callback_data=f"acc:view:{a['id']}")] for a in rows]
     kb.append([InlineKeyboardButton("⚡ اتصال سریع Cloudflare", callback_data="acc:quick")])
     kb.append([InlineKeyboardButton("➕ افزودن حساب جدید", callback_data="acc:add")])
@@ -961,7 +988,7 @@ def accounts_view(note=""):
     text = (f"{esc(note)}\n\n" if note else "") + (
         "👤 <b>حساب‌های Cloudflare</b>\n\n"
         f"📂 تعداد حساب‌ها: <b>{len(rows)}</b>\n"
-        f"🟢 حساب فعال: <b>{esc(next((r['label'] for r in rows if r['active']), 'ندارد'))}</b>\n\n"
+        f"👤 حساب انتخاب‌شده برای مدیریت: <b>{esc(next((r['label'] for r in rows if r['active']), 'ندارد'))}</b>\n\n"
         f"{desc}"
     )
     return text, InlineKeyboardMarkup(kb)
@@ -1317,14 +1344,19 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             enc=encrypt_token(token)
             with closing(db_connect()) as con:
                 exists=con.execute("SELECT COUNT(*) FROM cf_accounts").fetchone()[0]
-                con.execute("INSERT INTO cf_accounts(label,account_id,token_enc,active,created_at) VALUES(?,?,?,?,?)",(label,accid,enc,0 if exists else 1,datetime.now(timezone.utc).isoformat())); con.commit()
+                cursor = con.execute(
+                    "INSERT INTO cf_accounts(label,account_id,token_enc,active,created_at) VALUES(?,?,?,?,?)",
+                    (label, accid, enc, 0 if exists else 1, datetime.now(timezone.utc).isoformat()),
+                )
+                aid = cursor.lastrowid
+                con.commit()
             context.user_data.clear()
             return await localized_send(update.effective_chat, 
                 "✅ <b>حساب Cloudflare متصل شد!</b>\n\n"
                 f"👤 نام: <b>{esc(label)}</b>\n"
                 "🔐 توکن اعتبارسنجی و رمزنگاری شد. اکنون می‌توانید دامنه‌ها را مدیریت کنید.",
                 parse_mode=ParseMode.HTML,reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🌐 مدیریت دامنه‌ها",callback_data="zones:0")],
+                    [InlineKeyboardButton("👤 مشاهده حساب", callback_data=f"acc:view:{aid}")],
                     [InlineKeyboardButton("👤 حساب‌های من",callback_data="accounts")],
                     [InlineKeyboardButton("🏠 منوی اصلی",callback_data="main")]]))
         if state=="add_name":

@@ -92,6 +92,9 @@ async def run():
     await ns['accounts_menu'](q)
     await ns['account_detail_menu'](q,1)
     assert 'آزمایشی &lt;a&gt;' in q.messages[-1][0]
+    assert 'domain1-0.test' in q.messages[-1][0]
+    assert '53' in q.messages[-1][0]
+    assert commands[-1][2]['params']['account.id'] == account['account_id']
     assert len(await ns['fetch_all_zones'](account))==53
     assert len(await ns['list_records'](Z))==502
 
@@ -99,6 +102,15 @@ async def run():
         return SimpleNamespace(callback_query=Query(data),effective_chat=SimpleNamespace(type=chat_type))
     def ctx(): return SimpleNamespace(user_data={})
 
+    second_account = dict(account, id=2, account_id='0'*32, active=0)
+    ns['get_account'] = lambda aid: {1: account, 2: second_account}.get(aid)
+    u = upd('acc:view:2:1')
+    await ns['callback'](u, ctx())
+    detail, kwargs = u.callback_query.messages[-1]
+    assert 'domain2-0.test' in detail
+    assert second_account['account_id'] in detail
+    assert commands[-1][2]['params'] == {'account.id': second_account['account_id'], 'per_page': 10, 'page': 2}
+    assert any(btn.callback_data == 'acc:select:2' for row in kwargs['reply_markup'].inline_keyboard for btn in row)
     u=upd('acc:add','group'); context=ctx()
     await ns['callback'](u,context)
     assert not context.user_data
