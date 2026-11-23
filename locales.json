@@ -467,10 +467,6 @@
     "en": "</code>\n🔢 Algorithm: <code>",
     "ru": "</code>\n🔢 Алгоритм: <code>"
   },
-  "این حساب از قبل فعال است.": {
-    "en": "This account is already active.",
-    "ru": "Этот аккаунт уже активен."
-  },
   "✅ کش آدرس موردنظر پاک شد.": {
     "en": "✅ The URL cache was purged.",
     "ru": "✅ Кэш URL успешно очищен."
@@ -1063,17 +1059,9 @@
     "en": "🌐 Visible domains: <b>",
     "ru": "🌐 Доступные домены: <b>"
   },
-  "✅ انتخاب حساب برای مدیریت": {
-    "en": "✅ Select account to manage",
-    "ru": "✅ Выбрать аккаунт для управления"
-  },
   "👤 حساب انتخاب‌شده برای مدیریت: <b>": {
     "en": "👤 Account selected for management: <b>",
     "ru": "👤 Аккаунт для управления: <b>"
-  },
-  "حساب انتخاب‌شده برای مدیریت تغییر کرد.": {
-    "en": "Selected account changed.",
-    "ru": "Выбранный аккаунт изменён."
   },
   "👤 برای مدیریت دامنه‌ها، حساب Cloudflare را انتخاب کنید.": {
     "en": "👤 Choose a Cloudflare account to manage its domains.",

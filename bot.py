@@ -515,8 +515,6 @@ async def account_detail_menu(q, aid, note="", page=0):
     kb = [pagination] if len(pagination) > 1 else []
     if a["active"]:
         kb.append([InlineKeyboardButton("🌐 مدیریت دامنه‌ها", callback_data="zones:0")])
-    else:
-        kb.append([InlineKeyboardButton("✅ انتخاب حساب برای مدیریت", callback_data=f"acc:select:{aid}")])
     kb += [
         [InlineKeyboardButton("🧪 تست اتصال",callback_data=f"acc:test:{aid}"),
          InlineKeyboardButton("🔑 تعویض API Token",callback_data=f"acc:token:{aid}")],
@@ -784,7 +782,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode=ParseMode.HTML,reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("📖 راهنمای اتصال",callback_data="guide")],
                     [InlineKeyboardButton("❌ لغو",callback_data="accounts")]]))
-        if d == "zones:account":
+        if d == "zones:account" or d.startswith("acc:select:"):
             rows = list_accounts()
             if not rows:
                 return await zones_menu(q)
@@ -797,7 +795,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 q, "👤 برای مدیریت دامنه‌ها، حساب Cloudflare را انتخاب کنید.",
                 reply_markup=InlineKeyboardMarkup(keyboard),
             )
-        if d.startswith(("acc:select:", "zones:account:")):
+        if d.startswith("zones:account:"):
             aid = int(d.rsplit(":", 1)[1])
             selected = get_account(aid)
             if selected is None:
@@ -806,11 +804,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 with closing(db_connect()) as con:
                     con.execute("UPDATE cf_accounts SET active=CASE WHEN id=? THEN 1 ELSE 0 END", (aid,))
                     con.commit()
-            if d.startswith("zones:account:"):
-                return await zones_menu(q)
-            note = ("این حساب از قبل فعال است." if selected["active"]
-                    else "حساب انتخاب‌شده برای مدیریت تغییر کرد.")
-            return await account_detail_menu(q, aid, note)
+            return await zones_menu(q)
         if d.startswith("acc:test:"):
             aid=int(d.rsplit(":",1)[1]); a=get_account(aid)
             if a is None: raise ValueError("اکانت پیدا نشد")

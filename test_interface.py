@@ -111,7 +111,8 @@ async def run():
     assert 'domain2-0.test' in detail
     assert second_account['account_id'] in detail
     assert commands[-1][2]['params'] == {'account.id': second_account['account_id'], 'per_page': 10, 'page': 2}
-    assert any(btn.callback_data == 'acc:select:2' for row in kwargs['reply_markup'].inline_keyboard for btn in row)
+    assert all(not (btn.callback_data or '').startswith('acc:select:')
+               for row in kwargs['reply_markup'].inline_keyboard for btn in row)
     ns['list_accounts'] = lambda: [account, second_account]
     home_buttons = ns['main_kb'](True).inline_keyboard
     assert home_buttons[0][0].callback_data == 'zones:account'
