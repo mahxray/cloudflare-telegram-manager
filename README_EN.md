@@ -2,7 +2,7 @@
 
 # Cloudflare Telegram Manager — Installation & Operations
 
-**Version 2.8.1** · Self-hosted · Docker Compose · Administrator-only
+**Version 1.0.0** · Self-hosted · Docker Compose · Administrator-only
 
 [🇮🇷 راهنمای فارسی](README_FA.md) · [🏠 Project README](README.md) · [Changelog](CHANGELOG.md)
 

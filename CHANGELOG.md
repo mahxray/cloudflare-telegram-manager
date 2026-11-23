@@ -1,5 +1,11 @@
 # Cloudflare Telegram Manager — Current Release
 
+## v1.0.0 · 24 November 2026
+
+- Set the version number for this fork to 1.0.0.
+- Add guided Cloudflare token setup, live account details, and account selection before domain management.
+- Update the installer to fetch updates from this fork and simplify the main and account menus.
+
 ## v2.8.1 · 19 November 2026
 
 **This is the current supported release.** The repository maintains one active release entry; earlier development milestones are available only in Git history.

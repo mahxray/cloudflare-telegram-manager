@@ -45,7 +45,7 @@ assert translate_text("سلام", "fa") == "سلام"
 assert translate_text("foo", "ru") == "foo"
 assert translate_text("DNS example.com", "en") == "DNS example.com"
 
-home = ("☁️ <b>Cloudflare Manager</b>  |  نسخه 2.8.0\n"
+home = ("☁️ <b>Cloudflare Manager</b>  |  نسخه 1.0.0\n"
         "━━━━━━━━━━━━━━━━\n\n"
         "🌐 از منوی زیر بخش موردنظر را انتخاب کنید. برای بررسی اعتبار توکن، از «حساب‌های Cloudflare ← تست اتصال» استفاده کنید.")
 for lang in ("en", "ru"):
@@ -86,7 +86,7 @@ with tempfile.TemporaryDirectory() as td:
         'InlineKeyboardMarkup': Keyboard, 'InlineKeyboardButton': Button,
         'BotCommand': Command, 'BotCommandScopeChat': ChatScope,
         'BotCommandScopeAllPrivateChats': PrivateScope,
-        'ParseMode': SimpleNamespace(HTML='HTML'), 'VERSION':'2.8.1',
+        'ParseMode': SimpleNamespace(HTML='HTML'), 'VERSION':'1.0.0',
         'Update': object, 'Application': object, 'ContextTypes':SimpleNamespace(DEFAULT_TYPE=object),
         'is_admin':lambda update:True,
         'localized_reply':None,

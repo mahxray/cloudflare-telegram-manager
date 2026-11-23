@@ -8,7 +8,7 @@
 
 **A self-hosted Telegram control panel for Cloudflare DNS, zones, and security operations.**
 
-[![Latest Version](https://img.shields.io/badge/latest-v2.8.1-F48120?style=flat-square)](CHANGELOG.md)
+[![Latest Version](https://img.shields.io/badge/latest-v1.0.0-F48120?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](Dockerfile)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
 [![CI](https://github.com/Net-spoof/cloudflare-telegram-manager/actions/workflows/tests.yml/badge.svg)](https://github.com/Net-spoof/cloudflare-telegram-manager/actions/workflows/tests.yml)

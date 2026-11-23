@@ -47,7 +47,7 @@ DB_PATH = DATA_DIR / "bot.db"
 FERNET = Fernet(os.environ["ENCRYPTION_KEY"].strip().encode())
 CF_API = "https://api.cloudflare.com/client/v4"
 PAGE_SIZE = 8
-VERSION = "2.8.1"
+VERSION = "1.0.0"
 
 # A language is selected separately by each authorized Telegram user.
 # ContextVar keeps concurrent updates isolated without affecting other admins.

@@ -15,7 +15,7 @@ with tempfile.TemporaryDirectory() as td:
     import bot
 
     bot.init_db()
-    assert bot.VERSION == "2.8.1"
+    assert bot.VERSION == "1.0.0"
     assert bot.get_user_language(11) == "fa"
     bot.save_user_language(11, "en")
     assert bot.get_user_language(11) == "en"
