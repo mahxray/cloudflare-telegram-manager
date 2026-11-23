@@ -3,6 +3,20 @@ set -Eeuo pipefail
 umask 077
 cd "$(dirname "$0")"
 
+case "${1:-}" in
+  --update)
+    git fetch https://github.com/mahxray/cloudflare-telegram-manager.git main
+    git merge --ff-only FETCH_HEAD
+    exec bash ./install.sh
+    ;;
+  "")
+    ;;
+  *)
+    echo 'Usage: bash install.sh [--update]' >&2
+    exit 2
+    ;;
+esac
+
 # Repair and upgrade without changing any existing authentication secrets.
 mkdir -p data backups
 TS="$(date +%Y%m%d-%H%M%S)"
@@ -116,5 +130,6 @@ if [[ -n "$CID" ]]; then
     exit 1
   fi
 fi
-echo 'Installed/updated Cloudflare Telegram Manager v2.8.1.'
+echo 'Installed/updated Cloudflare Telegram Manager.'
+echo 'Open your bot in Telegram, send /start, and choose Quick Cloudflare setup to connect an account.'
 echo 'Run ./diagnose.sh if Telegram commands do not respond.'

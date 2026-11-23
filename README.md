@@ -53,7 +53,7 @@ Send `/language` or select **Language** in the main menu, then choose a language
 ```bash
 sudo apt-get update
 sudo apt-get install -y git python3 ca-certificates
-sudo git clone https://github.com/Net-spoof/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
+sudo git clone https://github.com/mahxray/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
 cd /opt/cloudflare-telegram-manager
 sudo bash install.sh
 ```

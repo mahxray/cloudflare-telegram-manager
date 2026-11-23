@@ -57,7 +57,7 @@ Connect to your VPS via SSH, then run:
 sudo apt-get update
 sudo apt-get install -y git python3 ca-certificates
 
-sudo git clone https://github.com/Net-spoof/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
+sudo git clone https://github.com/mahxray/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
 cd /opt/cloudflare-telegram-manager
 sudo bash install.sh
 ~~~
@@ -177,8 +177,7 @@ From your **existing installation directory**, run:
 
 ~~~bash
 cd /opt/cloudflare-telegram-manager
-sudo git pull --ff-only
-sudo bash install.sh
+sudo bash install.sh --update
 sudo docker compose ps
 ~~~
 

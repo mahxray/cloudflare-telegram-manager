@@ -71,7 +71,7 @@ sudo systemctl status docker --no-pager
 ~~~bash
 sudo apt-get update
 sudo apt-get install -y git python3 ca-certificates
-sudo git clone https://github.com/Net-spoof/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
+sudo git clone https://github.com/mahxray/cloudflare-telegram-manager.git /opt/cloudflare-telegram-manager
 cd /opt/cloudflare-telegram-manager
 sudo bash install.sh
 ~~~
@@ -173,8 +173,7 @@ sudo bash diagnose.sh
 
 ~~~bash
 cd /opt/cloudflare-telegram-manager
-sudo git pull --ff-only
-sudo bash install.sh
+sudo bash install.sh --update
 sudo docker compose ps
 ~~~
 
