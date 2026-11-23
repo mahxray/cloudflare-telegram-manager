@@ -1074,5 +1074,9 @@
   "حساب انتخاب‌شده برای مدیریت تغییر کرد.": {
     "en": "Selected account changed.",
     "ru": "Выбранный аккаунт изменён."
+  },
+  "👤 برای مدیریت دامنه‌ها، حساب Cloudflare را انتخاب کنید.": {
+    "en": "👤 Choose a Cloudflare account to manage its domains.",
+    "ru": "👤 Выберите аккаунт Cloudflare для управления его доменами."
   }
 }

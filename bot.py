@@ -699,7 +699,7 @@ def main_kb(connected=True):
             [InlineKeyboardButton("🌐 انتخاب زبان", callback_data="language")],
         ])
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🌐 مدیریت دامنه‌ها", callback_data="zones:0"),
+        [InlineKeyboardButton("🌐 مدیریت دامنه‌ها", callback_data="zones:account"),
          InlineKeyboardButton("🔎 جستجوی DNS", callback_data="gsearch")],
         [InlineKeyboardButton("👤 حساب‌های Cloudflare", callback_data="accounts")],
         [InlineKeyboardButton("📖 راهنمای اتصال", callback_data="guide")],
@@ -784,15 +784,33 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode=ParseMode.HTML,reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("📖 راهنمای اتصال",callback_data="guide")],
                     [InlineKeyboardButton("❌ لغو",callback_data="accounts")]]))
-        if d.startswith("acc:select:"):
-            aid = int(d.rsplit(":",1)[1])
+        if d == "zones:account":
+            rows = list_accounts()
+            if not rows:
+                return await zones_menu(q)
+            keyboard = [
+                [InlineKeyboardButton(short(row["label"], 35), callback_data=f"zones:account:{row['id']}")]
+                for row in rows
+            ]
+            keyboard.append([InlineKeyboardButton("🏠 منوی اصلی", callback_data="main")])
+            return await safe_edit(
+                q, "👤 برای مدیریت دامنه‌ها، حساب Cloudflare را انتخاب کنید.",
+                reply_markup=InlineKeyboardMarkup(keyboard),
+            )
+        if d.startswith(("acc:select:", "zones:account:")):
+            aid = int(d.rsplit(":", 1)[1])
             selected = get_account(aid)
-            if selected is None: raise ValueError("اکانت یافت نشد")
-            if selected["active"]:
-                return await account_detail_menu(q,aid,"این حساب از قبل فعال است.")
-            with closing(db_connect()) as con:
-                con.execute("UPDATE cf_accounts SET active=CASE WHEN id=? THEN 1 ELSE 0 END", (aid,)); con.commit()
-            return await account_detail_menu(q,aid,"حساب انتخاب‌شده برای مدیریت تغییر کرد.")
+            if selected is None:
+                return await accounts_menu(q, "حساب موردنظر پیدا نشد.")
+            if not selected["active"]:
+                with closing(db_connect()) as con:
+                    con.execute("UPDATE cf_accounts SET active=CASE WHEN id=? THEN 1 ELSE 0 END", (aid,))
+                    con.commit()
+            if d.startswith("zones:account:"):
+                return await zones_menu(q)
+            note = ("این حساب از قبل فعال است." if selected["active"]
+                    else "حساب انتخاب‌شده برای مدیریت تغییر کرد.")
+            return await account_detail_menu(q, aid, note)
         if d.startswith("acc:test:"):
             aid=int(d.rsplit(":",1)[1]); a=get_account(aid)
             if a is None: raise ValueError("اکانت پیدا نشد")

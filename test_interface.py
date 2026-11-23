@@ -7,6 +7,7 @@ import asyncio
 import base64
 import html
 import re
+from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -111,6 +112,35 @@ async def run():
     assert second_account['account_id'] in detail
     assert commands[-1][2]['params'] == {'account.id': second_account['account_id'], 'per_page': 10, 'page': 2}
     assert any(btn.callback_data == 'acc:select:2' for row in kwargs['reply_markup'].inline_keyboard for btn in row)
+    ns['list_accounts'] = lambda: [account, second_account]
+    home_buttons = ns['main_kb'](True).inline_keyboard
+    assert home_buttons[0][0].callback_data == 'zones:account'
+    u = upd('zones:account')
+    await ns['callback'](u, ctx())
+    picker, picker_kwargs = u.callback_query.messages[-1]
+    assert 'حساب Cloudflare را انتخاب کنید' in picker
+    buttons = picker_kwargs['reply_markup'].inline_keyboard
+    assert [row[0].callback_data for row in buttons[:2]] == ['zones:account:1', 'zones:account:2']
+
+    def select_account(sql, params):
+        assert params == (2,)
+        account['active'], second_account['active'] = 0, 1
+
+    async def show_selected_zones(q):
+        assert second_account['active'] and not account['active']
+        await q.edit_message_text(second_account['account_id'])
+
+    ns.update(
+        closing=nullcontext,
+        db_connect=lambda: SimpleNamespace(execute=select_account, commit=lambda: None),
+        zones_menu=show_selected_zones,
+    )
+    u = upd('zones:account:2')
+    await ns['callback'](u, ctx())
+    assert u.callback_query.messages[-1][0] == second_account['account_id']
+    account['active'], second_account['active'] = 1, 0
+    ns.update(list_accounts=lambda: [account], zones_menu=ignored)
+
     u=upd('acc:add','group'); context=ctx()
     await ns['callback'](u,context)
     assert not context.user_data
