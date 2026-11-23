@@ -78,7 +78,6 @@ In your Telegram bot's private chat, send `/start` and open **👤 حساب‌ه
 |---|---|
 | `/start`, `/menu` | Open the main dashboard |
 | `/accounts` | Manage connected Cloudflare accounts |
-| `/about` | Developer, repository and Telegram channel |
 | `/help` | Show bot help |
 | `/cancel` | Cancel the current input |
 

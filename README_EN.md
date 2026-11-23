@@ -140,7 +140,6 @@ The interface supports **Persian 🇮🇷, English 🇬🇧 and Russian 🇷🇺
 | <code>/menu</code> | Return to the main menu |
 | <code>/language</code> | Choose Persian, English or Russian with buttons |
 | <code>/accounts</code> | Open Cloudflare account management |
-| <code>/about</code> | Developer, GitHub repository and Telegram channel links |
 | <code>/help</code> | Display help |
 | <code>/cancel</code> | Cancel the current input flow |
 

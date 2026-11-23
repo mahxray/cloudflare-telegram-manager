@@ -132,7 +132,6 @@ sudo bash diagnose.sh
 <li><code>/menu</code> — بازگشت به منوی اصلی</li>
 <li><code>/language</code> — انتخاب زبان فارسی، انگلیسی یا روسی با دکمه</li>
 <li><code>/accounts</code> — مدیریت حساب‌های Cloudflare</li>
-<li><code>/about</code> — معرفی سازنده، سورس GitHub و کانال Net Spoof</li>
 <li><code>/help</code> — نمایش راهنمای ربات</li>
 <li><code>/cancel</code> — لغو مرحله فعلی</li>
 </ul>

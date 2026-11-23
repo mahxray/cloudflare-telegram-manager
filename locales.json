@@ -23,9 +23,9 @@
     "en": "📖 <b>Cloudflare connection guide</b>\n\nConnect in 3 steps:\n<b>1.</b> Create a scoped API Token\n<b>2.</b> Find the Account ID\n<b>3.</b> Add and test the account in Telegram\n\n🔐 Enter tokens only in a private chat with the bot; never share a Global API Key or password.",
     "ru": "📖 <b>Руководство по подключению Cloudflare</b>\n\nПодключение в 3 шага:\n<b>1.</b> Создать API-токен с ограниченными правами\n<b>2.</b> Узнать Account ID\n<b>3.</b> Добавить и проверить аккаунт в Telegram\n\n🔐 Вводите токен только в личном чате с ботом; не отправляйте Global API Key или пароль."
   },
-  "📖 <b>راهنمای ربات Cloudflare</b>\n\nبرای مدیریت حساب‌ها و DNS از /start استفاده کنید. آموزش قدم‌به‌قدم اتصال در دکمه «راهنمای اتصال» موجود است.\n\nفرمان‌ها:\n/start — منوی اصلی\n/accounts — مدیریت حساب‌ها\n/about — درباره ربات\n/help — راهنما\n/cancel — لغو عملیات": {
-    "en": "📖 <b>Cloudflare Bot Help</b>\n\nUse /start to manage accounts and DNS. The “Connection guide” button provides step-by-step setup instructions.\n\nCommands:\n/start — Main menu\n/accounts — Manage accounts\n/about — About the bot\n/help — Help\n/cancel — Cancel operation",
-    "ru": "📖 <b>Справка по боту Cloudflare</b>\n\nИспользуйте /start для управления аккаунтами и DNS. Пошаговая инструкция доступна по кнопке «Руководство по подключению».\n\nКоманды:\n/start — Главное меню\n/accounts — Управление аккаунтами\n/about — О боте\n/help — Помощь\n/cancel — Отмена операции"
+  "📖 <b>راهنمای ربات Cloudflare</b>\n\nبرای مدیریت حساب‌ها و DNS از /start استفاده کنید. آموزش قدم‌به‌قدم اتصال در دکمه «راهنمای اتصال» موجود است.\n\nفرمان‌ها:\n/start — منوی اصلی\n/accounts — مدیریت حساب‌ها\n/help — راهنما\n/cancel — لغو عملیات": {
+    "en": "📖 <b>Cloudflare Bot Help</b>\n\nUse /start to manage accounts and DNS. The “Connection guide” button provides step-by-step setup instructions.\n\nCommands:\n/start — Main menu\n/accounts — Manage accounts\n/help — Help\n/cancel — Cancel operation",
+    "ru": "📖 <b>Справка по боту Cloudflare</b>\n\nИспользуйте /start для управления аккаунтами и DNS. Пошаговая инструкция доступна по кнопке «Руководство по подключению».\n\nКоманды:\n/start — Главное меню\n/accounts — Управление аккаунтами\n/help — Помощь\n/cancel — Отмена операции"
   },
   "🔑 <b>اتصال حساب | مرحله ۳ از ۳</b>\n\nAPI Token ساخته‌شده را ارسال کنید؛ فقط مقدار خام توکن، بدون Bearer.\nتوکن باید به دامنه‌های این حساب و دست‌کم مجوز مشاهده Zone دسترسی داشته باشد.\n\n🔒 بعد از دریافت، پیام حاوی توکن را حذف می‌کنم و اتصال را می‌آزمایم.": {
     "en": "🔑 <b>Connect account | Step 3 of 3</b>\n\nSend the raw API Token, without Bearer.\nYour token must have access to this account's zones and at least Zone Read permission.\n\n🔒 The bot will attempt to delete the token message and verify the connection.",
@@ -499,10 +499,6 @@
     "en": "</code>\n🎯 Value: <code>",
     "ru": "</code>\n🎯 Значение: <code>"
   },
-  "ℹ️ درباره ربات و سازنده": {
-    "en": "ℹ️ About the bot and developer",
-    "ru": "ℹ️ О боте и разработчике"
-  },
   "▶️ فعال‌سازی مجدد دامنه": {
     "en": "▶️ Resume zone",
     "ru": "▶️ Возобновить домен"
@@ -767,10 +763,6 @@
     "en": "Resume",
     "ru": "Возобновить"
   },
-  "ℹ️ درباره ربات": {
-    "en": "ℹ️ About the bot",
-    "ru": "ℹ️ О боте"
-  },
   "↩️ همه حساب‌ها": {
     "en": "↩️ All accounts",
     "ru": "↩️ Все аккаунты"
@@ -1023,9 +1015,9 @@
     "en": "🇮🇷 فارسی",
     "ru": "🇮🇷 فارسی"
   },
-  "📖 <b>راهنمای ربات Cloudflare</b>\n\nبرای مدیریت حساب‌ها و DNS از /start استفاده کنید. آموزش قدم‌به‌قدم اتصال در دکمه «راهنمای اتصال» موجود است.\n\nفرمان‌ها:\n/start — منوی اصلی\n/accounts — مدیریت حساب‌ها\n/about — درباره ربات\n/help — راهنما\n/cancel — لغو عملیات\n/language — انتخاب زبان\n/menu — منوی اصلی": {
-    "en": "📖 <b>Cloudflare bot help</b>\n\nUse /start to manage accounts and DNS. Open “Connection guide” for step-by-step setup.\n\nCommands:\n/start — Main menu\n/accounts — Manage accounts\n/about — About the bot\n/help — Help\n/cancel — Cancel operation\n/language — Choose language\n/menu — Main menu",
-    "ru": "📖 <b>Справка бота Cloudflare</b>\n\nИспользуйте /start для управления аккаунтами и DNS. Пошаговая инструкция доступна в разделе «Руководство по подключению».\n\nКоманды:\n/start — Главное меню\n/accounts — Управление аккаунтами\n/about — О боте\n/help — Помощь\n/cancel — Отмена операции\n/language — Выбор языка\n/menu — Главное меню"
+  "📖 <b>راهنمای ربات Cloudflare</b>\n\nبرای مدیریت حساب‌ها و DNS از /start استفاده کنید. آموزش قدم‌به‌قدم اتصال در دکمه «راهنمای اتصال» موجود است.\n\nفرمان‌ها:\n/start — منوی اصلی\n/accounts — مدیریت حساب‌ها\n/help — راهنما\n/cancel — لغو عملیات\n/language — انتخاب زبان\n/menu — منوی اصلی": {
+    "en": "📖 <b>Cloudflare bot help</b>\n\nUse /start to manage accounts and DNS. Open “Connection guide” for step-by-step setup.\n\nCommands:\n/start — Main menu\n/accounts — Manage accounts\n/help — Help\n/cancel — Cancel operation\n/language — Choose language\n/menu — Main menu",
+    "ru": "📖 <b>Справка бота Cloudflare</b>\n\nИспользуйте /start для управления аккаунтами и DNS. Пошаговая инструкция доступна в разделе «Руководство по подключению».\n\nКоманды:\n/start — Главное меню\n/accounts — Управление аккаунтами\n/help — Помощь\n/cancel — Отмена операции\n/language — Выбор языка\n/menu — Главное меню"
   },
   "🌐 <b>زبان ربات</b>\n\nزبان دلخواهت رو انتخاب کن. این تنظیم بعد از ری‌استارت هم حفظ می‌شه.": {
     "en": "🌐 <b>Bot language</b>\n\nChoose your preferred language. Your selection is saved across restarts.",

@@ -1,4 +1,4 @@
-"""Offline regression tests for /accounts, /about and project credits.
+"""Offline regression tests for /accounts and removal of the About menu.
 No Telegram installation, credentials or network requests are required.
 """
 import ast
@@ -11,10 +11,10 @@ source = Path(__file__).with_name('bot.py').read_text(encoding='utf-8')
 tree = ast.parse(source)
 names = {
     'accounts_view', 'accounts_menu', 'accounts_command',
-    'about_view', 'about_command', 'help_command', 'callback',
+    'main_kb', 'help_command', 'callback',
 }
 selected = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names]
-assert len(selected) == len(names), 'Missing a function required for account/about commands'
+assert len(selected) == len(names), 'Missing a function required for account commands'
 
 main = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'main')
 def handler_name(node):
@@ -34,7 +34,7 @@ handlers = {
     and isinstance(node.args[0], ast.Constant)
 }
 assert handlers['accounts'] == 'accounts_command'
-assert handlers['about'] == 'about_command'
+assert 'about' not in handlers
 assert handlers['help'] == 'help_command'
 
 class Button:
@@ -104,29 +104,18 @@ async def run():
     assert 'هنوز حسابی متصل نشده' in msg.sent[-1][0]
     accounts.append({'id': 1, 'label': '<my-account>', 'account_id': 'a'*32, 'active': 1})
 
-    await ns['about_command'](update, context)
-    text, kw = msg.sent[-1]
-    assert 'Net-spoof' in text and 'github.com/Net-spoof/cloudflare-telegram-manager' in text
-    assert '@NET_SPOOF' in text
-    assert kw['disable_web_page_preview'] is True
-    urls = [b.url for row in kw['reply_markup'].inline_keyboard for b in row if b.url]
-    assert 'https://github.com/Net-spoof' in urls
-    assert 'https://github.com/Net-spoof/cloudflare-telegram-manager' in urls
-    assert 'https://t.me/NET_SPOOF' in urls
-
-    q = Query('about')
-    await ns['callback'](SimpleNamespace(callback_query=q), SimpleNamespace(user_data={}))
-    assert q.messages and q.messages[-1][0] == text
+    for connected in (True, False):
+        buttons = ns['main_kb'](connected).inline_keyboard
+        assert all(btn.callback_data != 'about' for row in buttons for btn in row)
 
     await ns['help_command'](update, context)
     help_text = msg.sent[-1][0]
-    assert '/accounts' in help_text and '/about' in help_text
+    assert '/accounts' in help_text and '/about' not in help_text
 
     access['allowed'] = False
     old_count = len(msg.sent)
     await ns['accounts_command'](update, context)
-    await ns['about_command'](update, context)
-    assert len(msg.sent) == old_count and access['denied'] == 2
+    assert len(msg.sent) == old_count and access['denied'] == 1
 
 asyncio.run(run())
-print('PASS: /accounts and /about commands, shared menus, GitHub/channel buttons, admin checks')
+print('PASS: /accounts, shared menus, About removal and admin checks')

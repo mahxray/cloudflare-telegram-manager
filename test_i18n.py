@@ -23,7 +23,7 @@ assert all(name in fn for name in (
 registered = [call.args[0].value for call in ast.walk(fn["main"])
               if isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
               and call.func.id == "CommandHandler" and isinstance(call.args[0], ast.Constant)]
-expected = ["start", "menu", "accounts", "about", "help", "cancel", "language"]
+expected = ["start", "menu", "accounts", "help", "cancel", "language"]
 assert registered == expected, registered
 assert 'callback_data="language"' in source
 assert 'd.startswith("lang:")' in source

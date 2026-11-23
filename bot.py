@@ -621,7 +621,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "فرمان‌ها:\n"
         "/start — منوی اصلی\n"
         "/accounts — مدیریت حساب‌ها\n"
-        "/about — درباره ربات\n"
         "/help — راهنما\n"
         "/cancel — لغو عملیات"
         "\n/language — انتخاب زبان"
@@ -639,17 +638,6 @@ async def accounts_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text, keyboard = accounts_view()
     return await localized_reply(update.effective_message, 
         text, parse_mode=ParseMode.HTML, reply_markup=keyboard
-    )
-
-
-async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update):
-        return await deny(update)
-    context.user_data.clear()
-    text, keyboard = about_view()
-    return await localized_reply(update.effective_message, 
-        text, parse_mode=ParseMode.HTML, reply_markup=keyboard,
-        disable_web_page_preview=True,
     )
 
 
@@ -708,15 +696,13 @@ def main_kb(connected=True):
             [InlineKeyboardButton("⚡ اتصال سریع Cloudflare", callback_data="acc:quick")],
             [InlineKeyboardButton("🔗 اتصال اولین حساب", callback_data="acc:add")],
             [InlineKeyboardButton("📖 راهنمای گام‌به‌گام", callback_data="guide")],
-            [InlineKeyboardButton("ℹ️ درباره ربات", callback_data="about")],
             [InlineKeyboardButton("🌐 انتخاب زبان", callback_data="language")],
         ])
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🌐 مدیریت دامنه‌ها", callback_data="zones:0"),
          InlineKeyboardButton("🔎 جستجوی DNS", callback_data="gsearch")],
         [InlineKeyboardButton("👤 حساب‌های Cloudflare", callback_data="accounts")],
-        [InlineKeyboardButton("📖 راهنمای اتصال", callback_data="guide"),
-         InlineKeyboardButton("ℹ️ درباره ربات", callback_data="about")],
+        [InlineKeyboardButton("📖 راهنمای اتصال", callback_data="guide")],
         [InlineKeyboardButton("🌐 انتخاب زبان", callback_data="language")],
     ])
 
@@ -749,7 +735,7 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data.clear()
     try:
         if d == "noop": return
-        if d == "main": return await show_main(q)
+        if d in {"main", "about"}: return await show_main(q)
         if d == "language": return await show_language_menu(q)
         if d.startswith("lang:"):
             if not is_private_chat(update):
@@ -941,10 +927,6 @@ async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             zid=d.split(":",1)[1]; return await toggle_zone_pause(q,zid)
         if d.startswith("zoneinfo:"):
             zid=d.split(":",1)[1]; return await zone_info(q,zid)
-        if d == "about":
-            text, keyboard = about_view()
-            return await safe_edit(q, text, parse_mode=ParseMode.HTML,
-                                   reply_markup=keyboard, disable_web_page_preview=True)
     except BadRequest as e:
         if "message is not modified" in str(e).lower():
             return
@@ -997,36 +979,6 @@ def accounts_view(note=""):
 async def accounts_menu(q, note=""):
     text, keyboard = accounts_view(note)
     return await safe_edit(q, text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
-
-
-def about_view():
-    """Project credits and links for both /about and the About button."""
-    project = "https://github.com/Net-spoof/cloudflare-telegram-manager"
-    developer = "https://github.com/Net-spoof"
-    channel = "https://t.me/NET_SPOOF"
-    text = (
-        "ℹ️ <b>Cloudflare Telegram Manager</b>\n"
-        f"🧩 نسخه: <code>{VERSION}</code>\n"
-        "━━━━━━━━━━━━━━━━\n\n"
-        "☁️ <b>مدیریت Cloudflare از تلگرام</b>\n"
-        "مدیریت حساب‌ها و دامنه‌ها، رکوردهای DNS، تنظیمات SSL، "
-        "کش و DNSSEC در یک محیط یکپارچه.\n\n"
-        "🔒 توکن‌ها به‌صورت رمزنگاری‌شده ذخیره می‌شوند.\n"
-        "⚠️ امکانات به دسترسی API Token شما وابسته‌اند.\n\n"
-        "━━━━━━━━━━━━━━━━\n"
-        f'👨‍💻 <b>سازنده:</b> <a href="{developer}">Net-spoof</a>\n'
-        f'📦 <b>گیت‌هاب:</b> <a href="{project}">github.com/Net-spoof/cloudflare-telegram-manager</a>\n'
-        f'📢 <b>کانال:</b> <a href="{channel}">@NET_SPOOF</a>\n\n'
-        "<i>این پروژه مستقل و غیررسمی است.</i>"
-    )
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("👨‍💻 GitHub سازنده", url=developer),
-         InlineKeyboardButton("📦 سورس پروژه", url=project)],
-        [InlineKeyboardButton("📢 کانال Net Spoof", url=channel)],
-        [InlineKeyboardButton("📖 راهنمای اتصال", callback_data="guide"),
-         InlineKeyboardButton("🏠 منوی اصلی", callback_data="main")],
-    ])
-    return text, keyboard
 
 
 async def zones_menu(q, page=0, note=""):
@@ -1476,7 +1428,6 @@ BOT_COMMAND_MENU = (
     ("start", "🏠 منوی اصلی"),
     ("menu", "📋 نمایش منوی اصلی"),
     ("accounts", "👤 مدیریت حساب‌های Cloudflare"),
-    ("about", "ℹ️ درباره ربات و سازنده"),
     ("help", "📖 راهنمای استفاده از ربات"),
     ("cancel", "❌ لغو عملیات جاری"),
     ("language", "🌐 انتخاب زبان"),
@@ -1522,7 +1473,6 @@ def main():
     app.add_handler(CommandHandler("start",localized_handler(start)))
     app.add_handler(CommandHandler("menu",localized_handler(start)))
     app.add_handler(CommandHandler("accounts",localized_handler(accounts_command)))
-    app.add_handler(CommandHandler("about",localized_handler(about_command)))
     app.add_handler(CommandHandler("help",localized_handler(help_command)))
     app.add_handler(CommandHandler("cancel",localized_handler(cancel_command)))
     app.add_handler(CommandHandler("language", localized_handler(language_command)))
