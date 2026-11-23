@@ -81,7 +81,10 @@ ns.update(show_main=ignored, cancel_kb=ignored, deny=ignored, get_account=lambda
 
 async def run():
     q=Query()
-    assert 'آزمایشی &lt;a&gt;' in ns['home_text'](account)
+    home = ns['home_text'](account)
+    assert account['label'] not in home
+    assert 'آزمایشی &lt;a&gt;' not in home
+    assert 'حساب فعال' not in home and 'حساب ذخیره‌شده' not in home
     for c in (True,False):
         kb=ns['main_kb'](c)
         assert kb.inline_keyboard

@@ -46,12 +46,10 @@ assert translate_text("foo", "ru") == "foo"
 assert translate_text("DNS example.com", "en") == "DNS example.com"
 
 home = ("☁️ <b>Cloudflare Manager</b>  |  نسخه 2.8.0\n"
-        "━━━━━━━━━━━━━━━━\n👤 حساب فعال: <b>example.com</b>\n"
-        "🟢 وضعیت: حساب ذخیره‌شده\n\n"
+        "━━━━━━━━━━━━━━━━\n\n"
         "🌐 از منوی زیر بخش موردنظر را انتخاب کنید. برای بررسی اعتبار توکن، از «حساب‌های Cloudflare ← تست اتصال» استفاده کنید.")
 for lang in ("en", "ru"):
     text = translate_text(home, lang)
-    assert "example.com" in text
     assert "<b>" in text and "</b>" in text
     assert "حساب" not in text
 

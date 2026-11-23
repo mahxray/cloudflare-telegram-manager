@@ -59,9 +59,9 @@
     "en": "</b>\n\nSend the new raw API Token without Bearer.\nThe connection will be tested against Cloudflare before saving.\n\n🔒 The bot will attempt to delete the token message.",
     "ru": "</b>\n\nОтправьте новый API-токен без Bearer.\nПеред сохранением соединение с Cloudflare будет проверено.\n\n🔒 Бот попытается удалить сообщение с токеном."
   },
-  "</b>\n🟢 وضعیت: حساب ذخیره‌شده\n\n🌐 از منوی زیر بخش موردنظر را انتخاب کنید. برای بررسی اعتبار توکن، از «حساب‌های Cloudflare ← تست اتصال» استفاده کنید.": {
-    "en": "</b>\n🟢 Status: Account saved\n\n🌐 Choose a section below. To verify the token, go to “Cloudflare Accounts → Test connection”.",
-    "ru": "</b>\n🟢 Статус: аккаунт сохранён\n\n🌐 Выберите раздел ниже. Для проверки токена используйте «Аккаунты Cloudflare → Проверить подключение»."
+  "🌐 از منوی زیر بخش موردنظر را انتخاب کنید. برای بررسی اعتبار توکن، از «حساب‌های Cloudflare ← تست اتصال» استفاده کنید.": {
+    "en": "🌐 Choose a section below. To verify the token, go to “Cloudflare Accounts → Test connection”.",
+    "ru": "🌐 Выберите раздел ниже. Для проверки токена используйте «Аккаунты Cloudflare → Проверить подключение»."
   },
   "⚠️ <b>تأیید تغییر DNSSEC</b>\n\nتغییر DNSSEC بدون هماهنگی رکورد DS در رجیسترار می‌تواند باعث اختلال در دسترسی دامنه شود. ادامه می‌دهید؟": {
     "en": "⚠️ <b>Confirm DNSSEC change</b>\n\nChanging DNSSEC without coordinating the DS record with your registrar can interrupt DNS resolution. Continue?",
@@ -386,10 +386,6 @@
   "برای رکورد AAAA باید IPv6 وارد شود.": {
     "en": "An AAAA record requires IPv6.",
     "ru": "Для записи AAAA требуется IPv6."
-  },
-  "\n━━━━━━━━━━━━━━━━\n👤 حساب فعال: <b>": {
-    "en": "\n━━━━━━━━━━━━━━━━\n👤 Active account: <b>",
-    "ru": "\n━━━━━━━━━━━━━━━━\n👤 Активный аккаунт: <b>"
   },
   "➕ <b>ساخت رکورد DNS</b>\n\nدسته: <b>": {
     "en": "➕ <b>Create DNS record</b>\n\nCategory: <b>",
@@ -1058,10 +1054,6 @@
   "🌐 دامنه‌های قابل‌مشاهده: <b>": {
     "en": "🌐 Visible domains: <b>",
     "ru": "🌐 Доступные домены: <b>"
-  },
-  "👤 حساب انتخاب‌شده برای مدیریت: <b>": {
-    "en": "👤 Account selected for management: <b>",
-    "ru": "👤 Аккаунт для управления: <b>"
   },
   "👤 برای مدیریت دامنه‌ها، حساب Cloudflare را انتخاب کنید.": {
     "en": "👤 Choose a Cloudflare account to manage its domains.",

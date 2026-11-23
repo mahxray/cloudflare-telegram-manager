@@ -467,9 +467,7 @@ def home_text(acc):
                 "مدیریت دامنه‌ها، رکوردهای DNS و تنظیمات Cloudflare، مستقیم از تلگرام.\n\n"
                 "برای شروع، «اتصال اولین حساب» را بزنید یا راهنمای اتصال را ببینید.")
     return ("☁️ <b>Cloudflare Manager</b>  |  نسخه " + VERSION + "\n"
-            "━━━━━━━━━━━━━━━━\n"
-            f"👤 حساب فعال: <b>{esc(acc['label'])}</b>\n"
-            "🟢 وضعیت: حساب ذخیره‌شده\n\n"
+            "━━━━━━━━━━━━━━━━\n\n"
             "🌐 از منوی زیر بخش موردنظر را انتخاب کنید. برای بررسی اعتبار توکن، از «حساب‌های Cloudflare ← تست اتصال» استفاده کنید.")
 
 
@@ -981,8 +979,7 @@ def accounts_view(note=""):
             if rows else "هنوز حسابی متصل نشده است. با دکمه زیر شروع کنید.")
     text = (f"{esc(note)}\n\n" if note else "") + (
         "👤 <b>حساب‌های Cloudflare</b>\n\n"
-        f"📂 تعداد حساب‌ها: <b>{len(rows)}</b>\n"
-        f"👤 حساب انتخاب‌شده برای مدیریت: <b>{esc(next((r['label'] for r in rows if r['active']), 'ندارد'))}</b>\n\n"
+        f"📂 تعداد حساب‌ها: <b>{len(rows)}</b>\n\n"
         f"{desc}"
     )
     return text, InlineKeyboardMarkup(kb)

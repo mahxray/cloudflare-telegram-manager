@@ -90,7 +90,8 @@ async def run():
     assert not context.user_data
     text, kw = msg.sent[-1]
     assert '<b>حساب‌های Cloudflare</b>' in text
-    assert '&lt;my-account&gt;' in text
+    assert '&lt;my-account&gt;' not in text
+    assert 'حساب انتخاب‌شده برای مدیریت' not in text
     assert kw['parse_mode'] == 'HTML'
     assert any(btn.callback_data == 'acc:view:1' for row in kw['reply_markup'].inline_keyboard for btn in row)
     assert any(btn.callback_data == 'acc:add' for row in kw['reply_markup'].inline_keyboard for btn in row)
